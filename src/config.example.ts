@@ -1,24 +1,27 @@
-export type Config = keyof typeof CONFIGS;
+export type Config = (typeof CONFIGS)[number];
 
-export type Browser = (typeof CONFIGS)[keyof typeof CONFIGS]["browser"];
+export type Browser = (typeof CONFIGS)[number]["browser"];
 
-export const CONFIGS = {
-  "arc-vscode": {
+export const CONFIGS = [
+  {
+    id: "work",
+    title: "Work",
+    subtitle: "Arc + VSCode",
     browser: "arc",
     browserAlternative: "brave",
     ide: "vscode",
+    icon: "list-icon-work.png",
   },
-  "brave-vscode": {
+  {
+    id: "personal",
+    title: "Personal",
+    subtitle: "Brave + Cursor",
     browser: "brave",
     browserAlternative: null,
-    ide: "vscode",
+    ide: "cursor",
+    icon: "list-icon-off.png",
   },
-  "brave-xcode": {
-    browser: "brave",
-    browserAlternative: null,
-    ide: "xcode",
-  },
-} as const;
+] as const;
 
 export const BTT_SHARED_SECRET = "REPLACE";
 
@@ -42,6 +45,7 @@ export const ALWAYS_OPEN_IN_BROWSER: Record<Browser, string[]> = {
 };
 
 export const IDE_APPLICATION_PATHS = {
+  cursor: "/Applications/Cursor.app",
   xcode: "/Applications/Xcode.app",
   vscode: "/Applications/Visual Studio Code.app",
 };

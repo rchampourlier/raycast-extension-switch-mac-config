@@ -13,7 +13,7 @@ import {
 } from "./config";
 import fs from "fs";
 
-type Ide = (typeof CONFIGS)[keyof typeof CONFIGS]["ide"];
+type Ide = (typeof CONFIGS)[number]["ide"];
 
 const LOG_VERBOSE = false;
 const BTT_MODIFIER_KEYCODES = {
@@ -24,7 +24,7 @@ const BTT_MODIFIER_KEYCODES = {
 export default function applyConfig(config: Config) {
   console.log(`Applying config '${config}'`);
 
-  const { browser, ide } = CONFIGS[config];
+  const { browser, ide } = config
   setBttBrowser(browser);
   setBttIde(ide);
   setFinickyConfig(browser);
