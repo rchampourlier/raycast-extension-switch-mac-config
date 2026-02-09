@@ -1,18 +1,16 @@
 import { exec } from "child_process";
 import {
-	ALWAYS_OPEN_IN_BROWSER,
 	type Browser,
 	BROWSER_APPLICATION_PATHS,
-	BROWSER_FINICKY_NAMES,
 	BTT_SHARED_SECRET,
 	BTT_SHORTCUT_UUIDS,
 	type CONFIGS,
 	type Config,
-	FINICKY_CONFIG_PATH,
+	FINICKY_CONFIG_FILES,
+	FINICKY_CONFIG_SYMLINK,
 	IDE_APPLICATION_PATHS,
 } from "./config";
 import fs from "node:fs";
-import path from "node:path";
 
 type Ide = (typeof CONFIGS)[number]["ide"];
 
@@ -21,20 +19,14 @@ const BTT_MODIFIER_KEYCODES = {
 	ALT: 524288,
 	CTRL: 262144,
 };
-const FINICKY_CONFIG_JS_TEMPLATE = `
-export default {
-	defaultBrowser: "__DEFAULT_BROWSER__",
-	handlers: [__HANDLERS__],
-};
-`
 
 export default function applyConfig(config: Config) {
 	console.log(`Applying config '${config}'`);
 
-	const { browser, ide } = config;
+	const { id, browser, ide } = config;
 	setBttBrowser(browser);
 	setBttIde(ide);
-	setFinickyConfig(browser);
+	setFinickyConfig(id as "work" | "personal");
 }
 
 function setBttBrowser(browser: Browser) {
@@ -57,25 +49,19 @@ function setBttIde(ide: Ide) {
 	execCommand(bttConfigUpdateCommand);
 }
 
-function setFinickyConfig(browser: Browser) {
-	console.log(`Setting Finicky config for browser ${browser}`);
+function setFinickyConfig(configId: "work" | "personal") {
+	console.log(`Setting Finicky config to ${configId}`);
 
-	let configText = FINICKY_CONFIG_JS_TEMPLATE;
-	configText = configText.replace('__DEFAULT_BROWSER__', BROWSER_FINICKY_NAMES[browser]);
+	const targetFile = FINICKY_CONFIG_FILES[configId];
 
-	const handlerStrings = buildHandlerStrings();
-	configText = configText.replace('__HANDLERS__', handlerStrings.join(",\n"))
+	// Remove existing symlink if it exists
+	if (fs.existsSync(FINICKY_CONFIG_SYMLINK)) {
+		fs.unlinkSync(FINICKY_CONFIG_SYMLINK);
+	}
 
-	fs.writeFileSync(FINICKY_CONFIG_PATH, configText);
-}
-
-function buildHandlerStrings(): string[] {
-	return ALWAYS_OPEN_IN_BROWSER.flatMap(({ browser, domains, profile }) =>
-		domains.map(
-			(domain) =>
-				`    { match: /^https?:\\/\\/.*${domain}.*$/, browser: { name: "${BROWSER_FINICKY_NAMES[browser]}", profile: "${profile}" }}`,
-		),
-	);
+	// Create new symlink (relative path for cleaner symlink)
+	fs.symlinkSync(targetFile, FINICKY_CONFIG_SYMLINK);
+	console.log(`Symlinked ${FINICKY_CONFIG_SYMLINK} -> ${targetFile}`);
 }
 
 function bttUpdateTrigger({
