@@ -25,7 +25,13 @@ export const CONFIGS = [
 
 export const BTT_SHARED_SECRET = "REPLACE";
 
-export const FINICKY_CONFIG_PATH = "/Users/YOU/.config/finicky/current.js";
+import { homedir } from "node:os";
+export const FINICKY_CONFIG_SYMLINK = `${homedir()}/.config/finicky/finicky.js`;
+
+export const FINICKY_CONFIG_FILES: Record<string, string> = {
+  work: "finicky.work.js",
+  personal: "finicky.personal.js",
+};
 
 export const BROWSER_APPLICATION_PATHS = {
   arc: "/Applications/Arc.app",

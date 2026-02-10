@@ -55,8 +55,10 @@ function setFinickyConfig(configId: "work" | "personal") {
 	const targetFile = FINICKY_CONFIG_FILES[configId];
 
 	// Remove existing symlink if it exists
-	if (fs.existsSync(FINICKY_CONFIG_SYMLINK)) {
+	try {
 		fs.unlinkSync(FINICKY_CONFIG_SYMLINK);
+	} catch (e) {
+		// Ignore if it doesn't exist
 	}
 
 	// Create new symlink (relative path for cleaner symlink)
